@@ -1,0 +1,60 @@
+# edge-hardener policy: Embedded Minimal
+# For resource-constrained embedded Linux devices (IoT sensors, actuators).
+# Focuses on essential hardening with minimal overhead.
+#
+# Copyright (c) 2026 isecwire GmbH. MIT License.
+
+name: "Embedded Minimal"
+description: "Minimal hardening profile for resource-constrained embedded devices"
+version: "1.0.0"
+standard: "IEC 62443-4-2 SL-1"
+
+# Which check categories to run
+checks:
+  secure_boot: true
+  kernel_hardening: true
+  dm_verity: true
+  debug_interfaces: true
+  network_exposure: true
+  filesystem_permissions: true
+  ssh_hardening: true
+  firewall: true
+  module_loading: true
+  core_dumps: true
+  container_audit: false
+  crypto_audit: true
+  supply_chain_audit: false
+  bootloader_audit: true
+
+# Policy overrides: check names mapped to required status.
+# If a check matches a pattern and the result does not meet the requirement,
+# the status is elevated to FAIL regardless of what the check itself returns.
+enforced:
+  # Must-pass checks for minimal embedded devices
+  - pattern: "KASLR"
+    require: "PASS"
+    reason: "KASLR is mandatory for all embedded devices"
+  - pattern: "debugfs"
+    require: "PASS"
+    reason: "Debug filesystem must not be mounted in production"
+  - pattern: "SSH PermitRootLogin"
+    require: "PASS"
+    reason: "Root SSH login must be disabled"
+  - pattern: "SSH PasswordAuthentication"
+    require: "PASS"
+    reason: "Password-based SSH must be disabled"
+  - pattern: "Core dump"
+    require: "PASS"
+    reason: "Core dumps must be disabled on embedded devices"
+  - pattern: "kptr_restrict"
+    require: "PASS"
+    reason: "Kernel pointer restriction is mandatory"
+  - pattern: "dmesg_restrict"
+    require: "PASS"
+    reason: "dmesg must be restricted to root"
+
+# Thresholds for overall pass/fail determination
+thresholds:
+  max_fail: 0
+  max_warn: 10
+  min_pass_percent: 70
