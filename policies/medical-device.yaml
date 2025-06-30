@@ -1,0 +1,177 @@
+# edge-hardener policy: Medical Device
+# For Linux-based medical devices subject to FDA/MDR requirements.
+# Maximum security posture aligned with IEC 62443 SL-3 and FDA guidance.
+#
+# Copyright (c) 2026 isecwire GmbH. MIT License.
+
+name: "Medical Device"
+description: "Maximum hardening for medical devices (FDA/MDR/IEC 62443 SL-3)"
+version: "1.0.0"
+standard: "IEC 62443-4-2 SL-3, FDA Premarket Cybersecurity Guidance"
+
+checks:
+  secure_boot: true
+  kernel_hardening: true
+  dm_verity: true
+  debug_interfaces: true
+  network_exposure: true
+  filesystem_permissions: true
+  ssh_hardening: true
+  firewall: true
+  module_loading: true
+  core_dumps: true
+  container_audit: true
+  crypto_audit: true
+  supply_chain_audit: true
+  bootloader_audit: true
+
+enforced:
+  # Secure Boot — mandatory for medical devices
+  - pattern: "Secure Boot"
+    require: "PASS"
+    reason: "FDA requires verified boot chain for medical devices"
+  - pattern: "dm-verity"
+    require: "PASS"
+    reason: "Root filesystem integrity verification required"
+  # Full kernel hardening
+  - pattern: "KASLR"
+    require: "PASS"
+    reason: "Mandatory for FDA cybersecurity compliance"
+  - pattern: "Full ASLR"
+    require: "PASS"
+    reason: "CR 3.4 — address space layout randomization"
+  - pattern: "Stack protector"
+    require: "PASS"
+    reason: "Buffer overflow protection mandatory"
+  - pattern: "FORTIFY_SOURCE"
+    require: "PASS"
+    reason: "Compile-time buffer overflow detection required"
+  - pattern: "Hardened usercopy"
+    require: "PASS"
+    reason: "Kernel memory safety feature required"
+  - pattern: "kptr_restrict"
+    require: "PASS"
+    reason: "Kernel address information must be hidden"
+  - pattern: "dmesg_restrict"
+    require: "PASS"
+    reason: "Kernel log access must be restricted"
+  - pattern: "Unprivileged BPF"
+    require: "PASS"
+    reason: "BPF access must be restricted"
+  # All debug interfaces locked
+  - pattern: "debugfs"
+    require: "PASS"
+    reason: "Debug interfaces prohibited on medical devices"
+  - pattern: "GPIO pins"
+    require: "PASS"
+    reason: "Physical debug surface must be minimized"
+  - pattern: "kprobes"
+    require: "PASS"
+    reason: "Runtime instrumentation prohibited"
+  - pattern: "Debug kernel param"
+    require: "PASS"
+    reason: "Kernel debug parameters prohibited"
+  # Network — strict
+  - pattern: "Telnet"
+    require: "PASS"
+    reason: "Cleartext protocols prohibited"
+  - pattern: "FTP"
+    require: "PASS"
+    reason: "Cleartext protocols prohibited"
+  - pattern: "Legacy r-service"
+    require: "PASS"
+    reason: "Legacy services prohibited"
+  - pattern: "MQTT (unencrypted)"
+    require: "PASS"
+    reason: "All communications must be encrypted"
+  - pattern: "firewall"
+    require: "PASS"
+    reason: "Network filtering mandatory"
+  - pattern: "SYN cookies"
+    require: "PASS"
+    reason: "DoS protection required"
+  - pattern: "ICMP redirects"
+    require: "PASS"
+    reason: "ICMP hardening mandatory"
+  # SSH — maximum
+  - pattern: "SSH PermitRootLogin"
+    require: "PASS"
+    reason: "No root access via SSH"
+  - pattern: "SSH PasswordAuthentication"
+    require: "PASS"
+    reason: "Key-based auth only"
+  - pattern: "Weak SSH ciphers"
+    require: "PASS"
+    reason: "Only FIPS-approved ciphers"
+  - pattern: "Weak SSH MAC"
+    require: "PASS"
+    reason: "Only strong MACs permitted"
+  - pattern: "Weak SSH key exchange"
+    require: "PASS"
+    reason: "Only strong KEX algorithms"
+  # Filesystem
+  - pattern: "/etc/shadow"
+    require: "PASS"
+    reason: "Password file permissions critical"
+  - pattern: "SSH host key permissions"
+    require: "PASS"
+    reason: "Key material must be protected"
+  - pattern: "World-writable"
+    require: "PASS"
+    reason: "No world-writable system paths"
+  # Core dumps
+  - pattern: "Core dump"
+    require: "PASS"
+    reason: "Core dumps prohibited — may contain PHI/PII"
+  - pattern: "SUID core dumps"
+    require: "PASS"
+    reason: "SUID dump disabled mandatory"
+  # Module loading
+  - pattern: "module loading"
+    require: "PASS"
+    reason: "Runtime module loading must be disabled"
+  - pattern: "Module signature"
+    require: "PASS"
+    reason: "Only signed modules permitted"
+  # Containers
+  - pattern: "Privileged container"
+    require: "PASS"
+    reason: "No privileged containers on medical devices"
+  - pattern: "Docker socket mounted"
+    require: "PASS"
+    reason: "Container escape vector prohibited"
+  # Crypto
+  - pattern: "OpenSSL version"
+    require: "PASS"
+    reason: "Current cryptographic libraries required"
+  - pattern: "Entropy pool"
+    require: "PASS"
+    reason: "Adequate entropy for cryptographic operations"
+  - pattern: "Certificate expired"
+    require: "PASS"
+    reason: "No expired certificates permitted"
+  - pattern: "Weak key size"
+    require: "PASS"
+    reason: "Minimum 2048-bit RSA / 256-bit EC keys"
+  # Supply chain
+  - pattern: "RELRO"
+    require: "PASS"
+    reason: "Binary hardening mandatory"
+  - pattern: "executable stack"
+    require: "PASS"
+    reason: "Non-executable stacks required"
+  - pattern: "Library directory"
+    require: "PASS"
+    reason: "Library paths must be protected"
+  # Bootloader
+  - pattern: "GRUB password"
+    require: "PASS"
+    reason: "Bootloader must be password protected"
+  - pattern: "Secure Boot verified"
+    require: "PASS"
+    reason: "Full Secure Boot chain required"
+
+thresholds:
+  max_fail: 0
+  max_warn: 3
+  min_pass_percent: 90
