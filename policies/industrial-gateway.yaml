@@ -1,0 +1,104 @@
+# edge-hardener policy: Industrial Gateway
+# For ICS/SCADA edge gateways connecting OT and IT networks.
+# Strict network and protocol controls aligned with IEC 62443.
+#
+# Copyright (c) 2026 isecwire GmbH. MIT License.
+
+name: "Industrial Gateway"
+description: "Hardening profile for ICS/SCADA edge gateways and protocol converters"
+version: "1.0.0"
+standard: "IEC 62443-4-2 SL-2/SL-3"
+
+checks:
+  secure_boot: true
+  kernel_hardening: true
+  dm_verity: true
+  debug_interfaces: true
+  network_exposure: true
+  filesystem_permissions: true
+  ssh_hardening: true
+  firewall: true
+  module_loading: true
+  core_dumps: true
+  container_audit: true
+  crypto_audit: true
+  supply_chain_audit: true
+  bootloader_audit: true
+
+enforced:
+  # Secure Boot chain
+  - pattern: "Secure Boot"
+    require: "PASS"
+    reason: "IEC 62443 SL-2 requires verified boot chain"
+  - pattern: "KASLR"
+    require: "PASS"
+    reason: "Address space randomization mandatory"
+  - pattern: "Full ASLR"
+    require: "PASS"
+    reason: "IEC 62443 CR 3.4 — full ASLR required"
+  # Debug must be fully locked down
+  - pattern: "debugfs"
+    require: "PASS"
+    reason: "Debug interfaces forbidden on production gateways"
+  - pattern: "GPIO pins exported"
+    require: "PASS"
+    reason: "GPIO export increases physical attack surface"
+  - pattern: "kprobes"
+    require: "PASS"
+    reason: "Runtime instrumentation must be disabled"
+  # Network hardening
+  - pattern: "Telnet"
+    require: "PASS"
+    reason: "Telnet is prohibited on industrial networks"
+  - pattern: "FTP"
+    require: "PASS"
+    reason: "FTP is prohibited — use SFTP"
+  - pattern: "IPv4 forwarding"
+    require: "PASS"
+    reason: "IP forwarding must be explicitly configured per interface"
+  - pattern: "SYN cookies"
+    require: "PASS"
+    reason: "SYN flood protection mandatory"
+  - pattern: "ICMP redirects"
+    require: "PASS"
+    reason: "ICMP redirects must be rejected"
+  - pattern: "Reverse path filtering"
+    require: "PASS"
+    reason: "Anti-spoofing via rp_filter mandatory"
+  - pattern: "firewall"
+    require: "PASS"
+    reason: "Packet filtering required for OT/IT boundary"
+  # SSH
+  - pattern: "SSH PermitRootLogin"
+    require: "PASS"
+    reason: "Root login prohibited"
+  - pattern: "SSH PasswordAuthentication"
+    require: "PASS"
+    reason: "Key-based authentication required"
+  # Filesystem
+  - pattern: "/etc/shadow permissions"
+    require: "PASS"
+    reason: "Password hash file must be restricted"
+  - pattern: "SSH host key permissions"
+    require: "PASS"
+    reason: "SSH key material must be restricted"
+  # Module loading
+  - pattern: "module loading"
+    require: "PASS"
+    reason: "Runtime module loading should be disabled on gateways"
+  # Crypto
+  - pattern: "Entropy pool"
+    require: "PASS"
+    reason: "Sufficient entropy required for cryptographic operations"
+  - pattern: "Weak SSH ciphers"
+    require: "PASS"
+    reason: "Only strong ciphers permitted"
+  # Supply chain
+  - pattern: "RELRO"
+    require: "PASS"
+    reason: "Binary hardening required for critical services"
+
+thresholds:
+  max_fail: 0
+  max_warn: 5
+  min_pass_percent: 85
