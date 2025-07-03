@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700" viewBox="0 0 900 700" font-family="'JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', 'Consolas', monospace" font-size="12.5px">
+  <!-- Window chrome -->
+  <rect fill="#1e1f29" width="900" height="700" rx="8"/>
+  <rect fill="#282a36" width="900" height="36" rx="8"/>
+  <rect fill="#282a36" width="900" height="10" y="26"/>
+  <circle fill="#ff5555" cx="20" cy="18" r="6"/>
+  <circle fill="#f1fa8c" cx="40" cy="18" r="6"/>
+  <circle fill="#50fa7b" cx="60" cy="18" r="6"/>
+  <text x="400" y="22" text-anchor="middle" fill="#6272a4" font-size="12">root@iot-gateway-04: ~/edge-hardener</text>
+
+  <!-- Terminal content -->
+  <g transform="translate(24, 56)">
+    <!-- Banner - ISECWIRE ASCII art -->
+    <text y="0" fill="#8be9fd" font-weight="bold">     _____ ____   _____ _____  __        _____ ____  _____</text>
+    <text y="16" fill="#8be9fd" font-weight="bold">    |_   _/ ___| | ____/ ___| \ \      / /_ _|  _ \| ____|</text>
+    <text y="32" fill="#8be9fd" font-weight="bold">      | | \___ \ |  _|| |      \ \ /\ / / | || |_) |  _|</text>
+    <text y="48" fill="#8be9fd" font-weight="bold">      | |  ___) || |__| |___    \ V  V /  | ||  _ &lt;| |___</text>
+    <text y="64" fill="#8be9fd" font-weight="bold">      |_| |____/ |_____\____|    \_/\_/  |___|_| \_\_____|</text>
+
+    <!-- Version line -->
+    <text y="90">
+      <tspan fill="#f8f8f2" font-weight="bold">     edge-hardener</tspan>
+      <tspan fill="#f8f8f2"> v2.2.0 </tspan>
+      <tspan fill="#6272a4">-- Embedded Linux Security Auditor</tspan>
+    </text>
+    <text y="106">
+      <tspan fill="#ff79c6">     Policy: Industrial Gateway</tspan>
+    </text>
+
+    <!-- System info box -->
+    <text y="130">
+      <tspan fill="#6272a4">     |</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Target </tspan>
+      <tspan fill="#f8f8f2">: iot-gateway-04 (aarch64)</tspan>
+    </text>
+    <text y="146">
+      <tspan fill="#6272a4">     |</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Kernel </tspan>
+      <tspan fill="#f8f8f2">: 5.15.0-rt</tspan>
+    </text>
+    <text y="162">
+      <tspan fill="#6272a4">     |</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Date   </tspan>
+      <tspan fill="#f8f8f2">: 2026-04-03T10:30:00+02:00</tspan>
+    </text>
+    <text y="178">
+      <tspan fill="#6272a4">     |</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> User   </tspan>
+      <tspan fill="#f8f8f2">: root</tspan>
+    </text>
+
+    <!-- Secure Boot category -->
+    <text y="206">
+      <tspan fill="#8be9fd" font-weight="bold">   ┌──</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Secure Boot </tspan>
+      <tspan fill="#8be9fd">──────────────────────────────────────────────┐</tspan>
+    </text>
+    <text y="224">
+      <tspan fill="#6272a4">   [1/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] EFI firmware detected</tspan>
+      <tspan fill="#6272a4">                                   (CIS 1.4.2)</tspan>
+    </text>
+    <text y="240">
+      <tspan fill="#6272a4">   [2/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#ff5555">FAIL</tspan><tspan fill="#f8f8f2">] Secure Boot not enabled -- SecureBoot disabled</tspan>
+      <tspan fill="#6272a4">    (CIS 1.4.2)</tspan>
+    </text>
+
+    <!-- Kernel Hardening category -->
+    <text y="266">
+      <tspan fill="#8be9fd" font-weight="bold">   ┌──</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Kernel Hardening </tspan>
+      <tspan fill="#8be9fd">─────────────────────────────────────────┐</tspan>
+    </text>
+    <text y="284">
+      <tspan fill="#6272a4">   [3/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] KASLR not explicitly disabled</tspan>
+    </text>
+    <text y="300">
+      <tspan fill="#6272a4">   [4/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] SMEP supported</tspan>
+    </text>
+    <text y="316">
+      <tspan fill="#6272a4">   [5/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] Stack protector (strong) -- CONFIG_STACKPROTECTOR_STRONG=y</tspan>
+    </text>
+    <text y="332">
+      <tspan fill="#6272a4">   [6/92] </tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#f1fa8c">WARN</tspan><tspan fill="#f8f8f2">] /dev/kmem disabled -- CONFIG_DEVKMEM not found</tspan>
+    </text>
+
+    <!-- SSH Configuration category -->
+    <text y="358">
+      <tspan fill="#8be9fd" font-weight="bold">   ┌──</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> SSH Configuration </tspan>
+      <tspan fill="#8be9fd">────────────────────────────────────────┐</tspan>
+    </text>
+    <text y="376">
+      <tspan fill="#6272a4">   [41/92]</tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] PasswordAuthentication disabled</tspan>
+      <tspan fill="#6272a4">                      (CIS 5.2)</tspan>
+    </text>
+    <text y="392">
+      <tspan fill="#6272a4">   [42/92]</tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] PermitRootLogin disabled</tspan>
+      <tspan fill="#6272a4">                             (CIS 5.2)</tspan>
+    </text>
+    <text y="408">
+      <tspan fill="#6272a4">   [43/92]</tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#50fa7b">PASS</tspan><tspan fill="#f8f8f2">] Protocol 2 only</tspan>
+      <tspan fill="#6272a4">                                      (CIS 5.2)</tspan>
+    </text>
+
+    <!-- Firewall category -->
+    <text y="434">
+      <tspan fill="#8be9fd" font-weight="bold">   ┌──</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> Firewall </tspan>
+      <tspan fill="#8be9fd">────────────────────────────────────────────────┐</tspan>
+    </text>
+    <text y="452">
+      <tspan fill="#6272a4">   [50/92]</tspan>
+      <tspan fill="#f8f8f2"> [</tspan><tspan fill="#f1fa8c">WARN</tspan><tspan fill="#f8f8f2">] nftables installed but no rules</tspan>
+      <tspan fill="#6272a4">                    (CIS 3.5)</tspan>
+    </text>
+
+    <!-- Ellipsis -->
+    <text y="478" fill="#6272a4">   ...</text>
+
+    <!-- Summary -->
+    <text y="506" fill="#8be9fd">   ══════════════════════════════════════════════════════════════════</text>
+    <text y="528">
+      <tspan fill="#f8f8f2" font-weight="bold">    Results: </tspan>
+      <tspan fill="#f8f8f2">92 checks</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> | </tspan>
+      <tspan fill="#50fa7b">58 PASS</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> | </tspan>
+      <tspan fill="#ff5555">5 FAIL</tspan>
+      <tspan fill="#f8f8f2" font-weight="bold"> | </tspan>
+      <tspan fill="#f1fa8c">29 WARN</tspan>
+    </text>
+    <text y="548">
+      <tspan fill="#f8f8f2" font-weight="bold">    Risk Score : </tspan>
+      <tspan fill="#f8f8f2">34/100 </tspan>
+      <tspan fill="#6272a4">(lower is better)</tspan>
+    </text>
+    <text y="568">
+      <tspan fill="#f8f8f2" font-weight="bold">    Pass Rate  : </tspan>
+      <tspan fill="#50fa7b">63%</tspan>
+    </text>
+    <text y="594">
+      <tspan fill="#ff79c6">    Policy: Industrial Gateway</tspan>
+    </text>
+    <text y="610">
+      <tspan fill="#ff5555">    FAIL: 5 failures exceed maximum 0</tspan>
+    </text>
+    <text y="626">
+      <tspan fill="#ff5555">    Policy NON-COMPLIANT</tspan>
+    </text>
+    <text y="648" fill="#8be9fd">   ══════════════════════════════════════════════════════════════════</text>
+  </g>
+</svg>
