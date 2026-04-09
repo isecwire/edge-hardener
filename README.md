@@ -1,5 +1,10 @@
 # edge-hardener
 
+[![CI](https://github.com/isecwire/edge-hardener/actions/workflows/ci.yml/badge.svg)](https://github.com/isecwire/edge-hardener/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Shell](https://img.shields.io/badge/shell-bash-green.svg)](https://www.gnu.org/software/bash/)
+[![Platform](https://img.shields.io/badge/platform-linux-lightgrey.svg)](https://www.kernel.org/)
+
 ![edge-hardener terminal output](assets/screenshot.svg)
 
 **Embedded Linux security hardening auditor for edge gateways, IoT devices, and medical/industrial systems.**
