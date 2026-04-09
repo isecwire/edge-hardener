@@ -5,7 +5,11 @@
 # Audits edge gateways and IoT devices for common security misconfigurations.
 # Run as root on the target device for full coverage.
 
-set -euo pipefail
+# Only enforce -u (unset variable protection). -e/pipefail were dropped
+# intentionally: audit checks rely on grep/awk pipelines that may not match
+# (e.g. a directive is absent from sshd_config), and pipefail+errexit would
+# abort the whole run mid-scan, breaking --quiet JSON emission and baselines.
+set -u
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VERSION="2.2.0"
