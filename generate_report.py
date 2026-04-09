@@ -564,7 +564,7 @@ def build_result_row(result: dict) -> str:
 
     detail_html = ""
     if detail:
-        detail_html = f'<div class="check-detail">{html.escape(detail)}</div>'
+        detail_html = f'<div class="check-detail">{detail}</div>'
 
     cis_html = ""
     if cis_id:

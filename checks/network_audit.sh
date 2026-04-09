@@ -52,7 +52,7 @@ _check_listening_ports() {
 
     # Check for listeners on all interfaces (0.0.0.0 / ::)
     local wildcard_tcp
-    wildcard_tcp=$(echo "$tcp_listeners" | grep -E "0\.0\.0\.0:\*|:::|\*:" | wc -l || true)
+    wildcard_tcp=$(echo "$tcp_listeners" | grep -cE "0\.0\.0\.0:\*|:::|\*:" || true)
     if [[ "$wildcard_tcp" -gt 3 ]]; then
         result_warn "Services bound to all interfaces" "${wildcard_tcp} TCP wildcard listener(s)" \
             "Bind services to specific interfaces where possible"

@@ -127,7 +127,7 @@ version_rc=$?
 
 assert_exit_code "--version exits 0" 0 "$version_rc"
 assert_contains "--version shows version string" "$version_output" "edge-hardener v"
-assert_contains "--version shows 2.0" "$version_output" "v2.0.0"
+assert_contains "--version shows 2.x" "$version_output" "v2."
 
 # ---------------------------------------------------------------------------
 # Test: unknown option

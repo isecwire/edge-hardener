@@ -179,10 +179,9 @@ _check_library_versions() {
         local ossl_ver
         ossl_ver=$(openssl version 2>/dev/null | grep -oP '\d+\.\d+\.\d+[a-z]*' | head -1 || true)
         if [[ -n "$ossl_ver" ]]; then
-            local major minor patch
+            local major minor
             major=$(echo "$ossl_ver" | cut -d. -f1)
             minor=$(echo "$ossl_ver" | cut -d. -f2)
-            patch=$(echo "$ossl_ver" | cut -d. -f3 | tr -d '[:alpha:]')
             if [[ "$major" -eq 1 ]] && [[ "$minor" -eq 0 ]]; then
                 result_fail "OpenSSL 1.0.x detected" "Version ${ossl_ver} — EOL, many CVEs" \
                     "Upgrade to OpenSSL 3.x immediately"
@@ -226,14 +225,12 @@ _check_library_versions() {
         fi
     fi
 
-    # Check for outdated shared libraries
+    # Check for outdated shared libraries (informational, not a direct
+    # vulnerability — intentionally no output)
     if command -v ldconfig &>/dev/null; then
-        # Check for multiple versions of the same library (upgrade residue)
-        local dup_libs
-        dup_libs=$(ldconfig -p 2>/dev/null | awk -F'=>' '{print $2}' | \
+        ldconfig -p 2>/dev/null | awk -F'=>' '{print $2}' | \
             xargs -I{} dirname {} 2>/dev/null | sort | uniq -c | \
-            sort -rn | head -5 || true)
-        # This is informational, not a direct vulnerability
+            sort -rn | head -5 >/dev/null || true
     fi
 
     if [[ "$vuln_found" -eq 0 ]]; then

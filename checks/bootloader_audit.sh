@@ -19,32 +19,31 @@ run_bootloader_audit() {
 # Bootloader type detection
 # ---------------------------------------------------------------------------
 _check_bootloader_type() {
-    local bootloader="unknown"
+    local grub_efi_found=0
+    local cfg
+    for cfg in /boot/efi/EFI/*/grub.cfg; do
+        [[ -f "$cfg" ]] && grub_efi_found=1 && break
+    done
 
-    if [[ -f /boot/grub/grub.cfg ]] || [[ -f /boot/grub2/grub.cfg ]] || [[ -f /boot/efi/EFI/*/grub.cfg ]]; then
-        bootloader="GRUB2"
+    if [[ -f /boot/grub/grub.cfg ]] || [[ -f /boot/grub2/grub.cfg ]] || (( grub_efi_found )); then
         result_pass "Bootloader detected" "GRUB2"
     elif [[ -f /boot/grub/menu.lst ]]; then
-        bootloader="GRUB-Legacy"
         result_warn "GRUB Legacy detected" "Upgrade to GRUB2 for security features" \
             "Migrate to GRUB2 for password protection and Secure Boot support"
     elif [[ -f /proc/device-tree/model ]] 2>/dev/null; then
         # Likely an embedded system with U-Boot
         local model
-        model=$(cat /proc/device-tree/model 2>/dev/null | tr -d '\0' || echo "unknown")
+        model=$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo "unknown")
         # Check for U-Boot environment
         if command -v fw_printenv &>/dev/null; then
-            bootloader="U-Boot"
             result_pass "Bootloader detected" "U-Boot (${model})"
         elif [[ -f /etc/fw_env.config ]]; then
-            bootloader="U-Boot"
             result_pass "Bootloader detected" "U-Boot (env config present)"
         else
             result_warn "Embedded platform detected" "${model} — bootloader not identified" \
                 "Ensure bootloader is properly secured"
         fi
     elif dmesg 2>/dev/null | grep -qi "u-boot\|uboot"; then
-        bootloader="U-Boot"
         result_pass "Bootloader detected" "U-Boot (from dmesg)"
     elif [[ -d /sys/firmware/efi ]]; then
         result_pass "UEFI firmware detected" "Bootloader managed by UEFI"
@@ -186,9 +185,6 @@ _check_uboot_security() {
             "Configure U-Boot password protection"
     fi
 
-    # Check for environment write protection
-    local env_protection
-    env_protection=$(fw_printenv 2>/dev/null | grep -i "env_protect\|ethact" || true)
     # Check if environment block can be written to by userspace
     if [[ -f "$env_config" ]]; then
         local env_device
@@ -205,8 +201,14 @@ _check_uboot_security() {
 # Secure boot chain verification
 # ---------------------------------------------------------------------------
 _check_secure_boot_chain() {
+    local sb_var_found=0
+    local sb_file
+    for sb_file in /sys/firmware/efi/efivars/SecureBoot-*; do
+        [[ -f "$sb_file" ]] && sb_var_found=1 && break
+    done
+
     # Check kernel image signature
-    if [[ -f /proc/sys/kernel/moksbverify ]] || [[ -f /sys/firmware/efi/efivars/SecureBoot-* ]]; then
+    if [[ -f /proc/sys/kernel/moksbverify ]] || (( sb_var_found )); then
         # Read Secure Boot variable
         local sb_val
         for sb_file in /sys/firmware/efi/efivars/SecureBoot-*; do
@@ -237,7 +239,7 @@ _check_secure_boot_chain() {
     # Check for IMA (Integrity Measurement Architecture)
     if [[ -d /sys/kernel/security/ima ]]; then
         local ima_policy
-        ima_policy=$(cat /sys/kernel/security/ima/policy 2>/dev/null | head -1 || true)
+        ima_policy=$(head -1 /sys/kernel/security/ima/policy 2>/dev/null || true)
         if [[ -n "$ima_policy" ]]; then
             result_pass "IMA (Integrity Measurement Architecture) active"
         else

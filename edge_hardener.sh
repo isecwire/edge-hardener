@@ -23,10 +23,13 @@ BOLD='\033[1m'
 DIM='\033[2m'
 NC='\033[0m'
 
-# Box-drawing characters
+# Box-drawing characters (BOX_BL/BOX_BR reserved for future layouts and
+# cleared by the test harness in tests/test_edge_hardener.sh)
 BOX_TL='\xe2\x94\x8c'
 BOX_TR='\xe2\x94\x90'
+# shellcheck disable=SC2034
 BOX_BL='\xe2\x94\x94'
+# shellcheck disable=SC2034
 BOX_BR='\xe2\x94\x98'
 BOX_H='\xe2\x94\x80'
 BOX_V='\xe2\x94\x82'
@@ -70,7 +73,9 @@ OUTPUT_FORMAT="text"
 INCLUDE_CHECKS=""
 EXCLUDE_CHECKS=""
 
-# All check categories (in order)
+# All check categories (in order) — reference documentation for --checks /
+# --exclude filters; read by policy loaders at runtime.
+# shellcheck disable=SC2034
 ALL_CATEGORIES="secure_boot kernel_hardening dm_verity debug_interfaces network_exposure filesystem_permissions ssh_hardening firewall module_loading core_dumps container_audit crypto_audit supply_chain_audit bootloader_audit systemd_audit usb_audit"
 
 # ---------------------------------------------------------------------------
@@ -763,8 +768,11 @@ check_debug_interfaces() {
     # JTAG / SWD exposure via sysfs GPIO
     local gpio_exposed=0
     if [[ -d /sys/class/gpio ]]; then
-        local exported
-        exported=$(ls /sys/class/gpio/ 2>/dev/null | grep -c "gpio[0-9]" || true)
+        local exported=0
+        local gpio_entry
+        for gpio_entry in /sys/class/gpio/gpio[0-9]*; do
+            [[ -e "$gpio_entry" ]] && ((exported++))
+        done
         if [[ "$exported" -gt 0 ]]; then
             result_warn "GPIO pins exported" "${exported} pin(s) via sysfs" \
                 "Unexport unused GPIO pins to reduce JTAG/SWD attack surface"
@@ -896,7 +904,7 @@ check_ssh_hardening() {
 
     # PermitRootLogin
     local root_login
-    root_login=$(echo "$full_config" | grep -i "^PermitRootLogin" | tail -1 | awk '{print $2}')
+    root_login=$(echo "$full_config" | grep -i "^PermitRootLogin" | tail -1 | awk '{print $2}' || true)
     if [[ -z "$root_login" ]] || [[ "$root_login" == "yes" ]]; then
         result_fail "SSH PermitRootLogin" "${root_login:-yes (default)}" \
             "Set PermitRootLogin no in sshd_config" "CIS 5.2.10"
@@ -912,7 +920,7 @@ check_ssh_hardening() {
 
     # PasswordAuthentication
     local pwd_auth
-    pwd_auth=$(echo "$full_config" | grep -i "^PasswordAuthentication" | tail -1 | awk '{print $2}')
+    pwd_auth=$(echo "$full_config" | grep -i "^PasswordAuthentication" | tail -1 | awk '{print $2}' || true)
     if [[ -z "$pwd_auth" ]] || [[ "$pwd_auth" == "yes" ]]; then
         result_fail "SSH PasswordAuthentication" "${pwd_auth:-yes (default)}" \
             "Set PasswordAuthentication no and use key-based auth" "CIS 5.2.12"
@@ -925,7 +933,7 @@ check_ssh_hardening() {
 
     # Protocol (legacy check — OpenSSH 7.6+ removed Protocol 1)
     local protocol
-    protocol=$(echo "$full_config" | grep -i "^Protocol" | tail -1 | awk '{print $2}')
+    protocol=$(echo "$full_config" | grep -i "^Protocol" | tail -1 | awk '{print $2}' || true)
     if [[ -n "$protocol" ]] && [[ "$protocol" != "2" ]]; then
         result_fail "SSH Protocol" "Protocol $protocol allows insecure v1" \
             "Set Protocol 2 in sshd_config" "CIS 5.2.4"
@@ -935,7 +943,7 @@ check_ssh_hardening() {
 
     # MaxAuthTries
     local max_auth
-    max_auth=$(echo "$full_config" | grep -i "^MaxAuthTries" | tail -1 | awk '{print $2}')
+    max_auth=$(echo "$full_config" | grep -i "^MaxAuthTries" | tail -1 | awk '{print $2}' || true)
     if [[ -n "$max_auth" ]] && [[ "$max_auth" -le 4 ]]; then
         result_pass "SSH MaxAuthTries" "${max_auth}" "CIS 5.2.7"
     elif [[ -z "$max_auth" ]] || [[ "$max_auth" -gt 4 ]]; then
@@ -945,7 +953,7 @@ check_ssh_hardening() {
 
     # LoginGraceTime
     local grace_time
-    grace_time=$(echo "$full_config" | grep -i "^LoginGraceTime" | tail -1 | awk '{print $2}')
+    grace_time=$(echo "$full_config" | grep -i "^LoginGraceTime" | tail -1 | awk '{print $2}' || true)
     if [[ -n "$grace_time" ]] && [[ "$grace_time" -le 60 ]]; then
         result_pass "SSH LoginGraceTime" "${grace_time}s" "CIS 5.2.16"
     elif [[ -z "$grace_time" ]]; then
@@ -955,7 +963,7 @@ check_ssh_hardening() {
 
     # ClientAliveInterval
     local alive_interval
-    alive_interval=$(echo "$full_config" | grep -i "^ClientAliveInterval" | tail -1 | awk '{print $2}')
+    alive_interval=$(echo "$full_config" | grep -i "^ClientAliveInterval" | tail -1 | awk '{print $2}' || true)
     if [[ -n "$alive_interval" ]] && [[ "$alive_interval" -gt 0 ]] && [[ "$alive_interval" -le 300 ]]; then
         result_pass "SSH ClientAliveInterval" "${alive_interval}s" "CIS 5.2.16"
     else
@@ -1237,12 +1245,12 @@ emit_csv() {
 emit_sarif() {
     local outfile="${1:-}"
 
+    # shellcheck disable=SC2016  # $schema is a literal JSON key, not a shell expansion
     local sarif='{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"edge-hardener","version":"'"${VERSION}"'","informationUri":"https://isecwire.com/tools/edge-hardener","rules":['
 
     # Build rules array and results array
     local rules=""
     local results=""
-    local rule_ids_seen=""
     local idx=0
 
     for r in "${JSON_RESULTS[@]}"; do
@@ -1260,7 +1268,8 @@ emit_sarif() {
         local esc_category; esc_category=$(_json_escape "$category")
         local esc_remediation; esc_remediation=$(_json_escape "$remediation")
 
-        local rule_id="EH$(printf '%04d' $idx)"
+        local rule_id
+        rule_id="EH$(printf '%04d' "$idx")"
 
         # Map status to SARIF level
         local level="note"

@@ -16,7 +16,6 @@ run_usb_audit() {
 # Check USB authorized_default policy
 # ---------------------------------------------------------------------------
 _check_usb_authorized_default() {
-    local auth_default_path="/sys/bus/usb/drivers_autoprobe"
     local auth_files
     auth_files=$(find /sys/bus/usb/devices/usb*/authorized_default 2>/dev/null | head -10)
 
@@ -94,7 +93,6 @@ _check_usbguard() {
 _check_removable_media_mount() {
     # Check if udisks2 automount is disabled
     local udisks_conf="/etc/udisks2/udisks2.conf"
-    local polkit_dir="/etc/polkit-1/localauthority"
     local automount_restricted=0
 
     # Check udisks2 configuration

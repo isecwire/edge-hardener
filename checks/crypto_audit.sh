@@ -237,7 +237,7 @@ _check_ssh_key_strength() {
 
     if [[ "$weak_host_keys" -eq 0 ]]; then
         local host_key_count
-        host_key_count=$(ls /etc/ssh/ssh_host_*_key.pub 2>/dev/null | wc -l || true)
+        host_key_count=$(find /etc/ssh/ -maxdepth 1 -name 'ssh_host_*_key.pub' 2>/dev/null | wc -l)
         if [[ "$host_key_count" -gt 0 ]]; then
             result_pass "SSH host key strength adequate" "${host_key_count} key(s) checked"
         fi
